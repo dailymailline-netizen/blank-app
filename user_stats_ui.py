@@ -24,96 +24,70 @@ def render_safe_blank_page():
     """
     st.set_page_config(page_title="Welcome - Stream & Upload Hub", layout="wide")
     
-    # Enhanced header with gradient and professional styling
+    # Modern header with dark theme and neon accent
     st.markdown(
         """
         <style>
         .welcome-header {
             text-align: center;
-            padding: 60px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 50px 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: white;
-            border-radius: 15px;
-            margin-bottom: 50px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            border-top: 5px solid #00d4ff;
+            border-bottom: 5px solid #ff006e;
         }
         .welcome-header h1 {
             margin: 0;
             font-size: 56px;
             font-weight: 900;
             letter-spacing: -1px;
+            background: linear-gradient(to right, #00d4ff, #ff006e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .welcome-subheader {
-            font-size: 20px;
+            font-size: 18px;
             margin-top: 15px;
-            opacity: 0.95;
-            font-weight: 500;
+            color: #00d4ff;
+            font-weight: 600;
+            letter-spacing: 2px;
         }
         .login-card {
-            background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
             padding: 40px;
-            border-radius: 15px;
-            border: 2px solid #e9ecef;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            border-radius: 20px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 12px 35px rgba(0,212,255,0.2);
             margin: 20px 0;
         }
         .login-title {
-            color: #764ba2;
+            color: #00d4ff;
             font-size: 28px;
             font-weight: 800;
             margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0,212,255,0.5);
         }
         </style>
         """, unsafe_allow_html=True
     )
     
-    # Main header with enhanced styling
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.markdown(
-            """
-            <div class='welcome-header'>
-                <h1>🎬 Stream & Upload Hub</h1>
-                <div class='welcome-subheader'>Your Professional Video Platform</div>
-            </div>
-            """, 
-            unsafe_allow_html=True
-        )
+    # ===== LOGIN AT TOP =====
+    st.markdown(
+        """
+        <div class='welcome-header'>
+            <h1>🎬 Stream & Upload Hub</h1>
+            <div class='welcome-subheader'>~ YOUR STREAMING PLATFORM ~</div>
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
     
-    # Introduction
-    st.markdown("""
-    ### 🚀 Your All-in-One Video & Streaming Platform
-    
-    **Stream & Upload Hub** is a comprehensive platform for creating, sharing, and managing video content.
-    Whether you're a casual creator or a professional streamer, we've got everything you need.
-    """)
-    
-    # Create two columns for getting started
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("### 📤 Upload Videos")
-        st.write("""
-        - Upload multiple video formats
-        - Automatic transcoding
-        - Organize with metadata
-        - Add descriptions and tags
-        """)
-    
-    with col2:
-        st.markdown("### 🔴 Go Live")
-        st.write("""
-        - Create live streams
-        - Customize stream settings
-        - Share with community
-        - Track stream analytics
-        """)
-    
-    st.divider()
-    
-    # Enhanced user registration section
-    st.markdown("### 🔐 Get Started Today")
-    
+    # Login section first
+    st.markdown("### 🔐 Quick Access")
     col1, col2 = st.columns([1, 1])
     
     with col1:
@@ -166,7 +140,37 @@ def render_safe_blank_page():
             else:
                 st.error("❌ Please enter your User ID")
     
-    # Features overview
+    st.divider()
+    
+    # ===== FEATURES BELOW =====
+    st.markdown("""
+    ### 🚀 Your All-in-One Video & Streaming Platform
+    
+    **Stream & Upload Hub** is a comprehensive platform for creating, sharing, and managing video content.
+    Whether you're a casual creator or a professional streamer, we've got everything you need.
+    """)
+    
+    # Create two columns for getting started
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("### 📤 Upload Videos")
+        st.write("""
+        - Upload multiple video formats
+        - Automatic transcoding
+        - Organize with metadata
+        - Add descriptions and tags
+        """)
+    
+    with col2:
+        st.markdown("### 🔴 Go Live")
+        st.write("""
+        - Create live streams
+        - Customize stream settings
+        - Share with community
+        - Track stream analytics
+        """)
+    
     st.divider()
     st.markdown("### Platform Features")
     
