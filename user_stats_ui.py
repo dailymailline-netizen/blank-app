@@ -488,17 +488,24 @@ def render_possible_stats_list():
     """
     st.markdown("### 📋 Possible Statistics to Track")
     
-    st.info("""
-    **Current 8 Main Stats:**
-    1. Subscriber Features Used ⭐
-    2. Watch History Entries 📺
-    3. Total Watched Hours ⏱️
-    4. Videos Uploaded 🎥
-    5. Streams Created 🔴
-    6. Images Uploaded 🖼️
-    7. Total Interactions 💬
-    8. Last Activity Timestamp ⏰
-    """)
+    st.markdown("**Current 8 Main Stats:**")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        1. Subscriber Features Used ⭐
+        2. Watch History Entries 📺
+        3. Total Watched Hours ⏱️
+        4. Videos Uploaded 🎥
+        """)
+    
+    with col2:
+        st.markdown("""
+        5. Streams Created 🔴
+        6. Images Uploaded 🖼️
+        7. Total Interactions 💬
+        8. Last Activity Timestamp ⏰
+        """)
     
     st.markdown("---")
     st.markdown("### 🎯 Additional Stats for Future Implementation")
