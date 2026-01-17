@@ -183,9 +183,9 @@ def render_safe_blank_page():
         "⭐ Premium": "Unlock exclusive features with subscription"
     }
     
-    cols = st.columns(3)
+    cols = st.columns(2)
     for idx, (feature, description) in enumerate(features.items()):
-        with cols[idx % 3]:
+        with cols[idx % 2]:
             st.markdown(f"**{feature}**")
             st.caption(description)
 
@@ -225,7 +225,7 @@ def render_8_point_stats(user_id: str, manager: UserManager):
     
     st.markdown("### 📊 Your Statistics")
     
-    # Display 8 stats in 2 rows of 4
+    # Display 8 stats in 2 columns
     metrics = [
         ("Subscriber\nFeatures Used", stats.subscriber_features_used, "⭐"),
         ("Watch\nHistory Entries", stats.watch_history_entries, "📺"),
@@ -237,9 +237,9 @@ def render_8_point_stats(user_id: str, manager: UserManager):
         ("Last\nActivity", stats.last_activity_timestamp[:10], "⏰"),
     ]
     
-    cols = st.columns(4)
+    cols = st.columns(2)
     for idx, (label, value, emoji) in enumerate(metrics):
-        with cols[idx % 4]:
+        with cols[idx % 2]:
             st.metric(f"{emoji} {label}", value)
     
     st.divider()
