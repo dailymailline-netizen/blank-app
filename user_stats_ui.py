@@ -24,34 +24,65 @@ def render_safe_blank_page():
     """
     st.set_page_config(page_title="Welcome - Stream & Upload Hub", layout="wide")
     
-    # Header
+    # Enhanced header with gradient and professional styling
     st.markdown(
         """
         <style>
         .welcome-header {
             text-align: center;
-            padding: 40px 0;
+            padding: 60px 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border-radius: 10px;
-            margin-bottom: 40px;
+            border-radius: 15px;
+            margin-bottom: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         .welcome-header h1 {
             margin: 0;
-            font-size: 48px;
+            font-size: 56px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+        .welcome-subheader {
+            font-size: 20px;
+            margin-top: 15px;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+        .login-card {
+            background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            margin: 20px 0;
+        }
+        .login-title {
+            color: #764ba2;
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 20px;
         }
         </style>
         """, unsafe_allow_html=True
     )
     
+    # Main header with enhanced styling
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.title("🎬 Welcome to Stream & Upload Hub")
-        st.markdown("---")
+        st.markdown(
+            """
+            <div class='welcome-header'>
+                <h1>🎬 Stream & Upload Hub</h1>
+                <div class='welcome-subheader'>Your Professional Video Platform</div>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
     
     # Introduction
     st.markdown("""
-    ### Your All-in-One Video & Streaming Platform
+    ### 🚀 Your All-in-One Video & Streaming Platform
     
     **Stream & Upload Hub** is a comprehensive platform for creating, sharing, and managing video content.
     Whether you're a casual creator or a professional streamer, we've got everything you need.
@@ -80,17 +111,24 @@ def render_safe_blank_page():
     
     st.divider()
     
-    # User registration section
-    st.markdown("### Get Started Today")
+    # Enhanced user registration section
+    st.markdown("### 🔐 Get Started Today")
     
     col1, col2 = st.columns([1, 1])
     
     with col1:
-        st.markdown("#### Create Account")
-        username = st.text_input("Choose Username", key="signup_username")
-        email = st.text_input("Email Address", key="signup_email")
+        st.markdown(
+            """
+            <div class='login-card'>
+                <div class='login-title'>✨ Create Account</div>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+        username = st.text_input("Choose Username", key="signup_username", placeholder="your_username")
+        email = st.text_input("Email Address", key="signup_email", placeholder="you@example.com")
         
-        if st.button("Create Free Account", key="signup_btn"):
+        if st.button("🚀 Create Free Account", key="signup_btn", use_container_width=True):
             if username and email:
                 manager = get_user_manager()
                 user_id = manager.create_user(username, email, UserRole.FREE)
@@ -102,11 +140,19 @@ def render_safe_blank_page():
             else:
                 st.error("Please fill in all fields")
     
-    with col1:
-        st.markdown("#### Already Have Account?")
-        existing_user_id = st.text_input("Enter Your User ID", key="login_userid")
+    with col2:
+        st.markdown(
+            """
+            <div class='login-card'>
+                <div class='login-title'>🔑 Login</div>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+        st.write("Already have an account? Welcome back!")
+        existing_user_id = st.text_input("Enter Your User ID", key="login_userid", placeholder="your_user_id_here")
         
-        if st.button("Login", key="login_btn"):
+        if st.button("🔓 Login Now", key="login_btn", use_container_width=True):
             if existing_user_id:
                 manager = get_user_manager()
                 user = manager.get_user(existing_user_id)
@@ -116,9 +162,9 @@ def render_safe_blank_page():
                     time.sleep(1)
                     st.rerun()
                 else:
-                    st.error("User ID not found")
+                    st.error("❌ User ID not found")
             else:
-                st.error("Please enter your User ID")
+                st.error("❌ Please enter your User ID")
     
     # Features overview
     st.divider()
