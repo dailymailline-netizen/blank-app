@@ -7,6 +7,7 @@ import streamlit as st
 from pathlib import Path
 from typing import Optional, List, Dict
 from user_stats import UserManager, UserRole, SubscriberFeature, WatchHistoryEntry
+from user_registry import get_user_registry
 from config import USERS_DIR, USERS_HISTORY_DIR
 import time
 
@@ -99,18 +100,28 @@ def render_safe_blank_page():
             """, 
             unsafe_allow_html=True
         )
-        username = st.text_input("Choose Username", key="signup_username", placeholder="your_username")
-        email = st.text_input("Email Address", key="signup_email", placeholder="you@example.com")
+        signup_username = st.text_input("Choose Username", key="signup_username", placeholder="your_username")
+        signup_email = st.text_input("Email Address", key="signup_email", placeholder="you@example.com")
+        signup_password = st.text_input("Password", key="signup_password", placeholder="min 6 characters", type="password")
         
         if st.button("🚀 Create Free Account", key="signup_btn", use_container_width=True):
-            if username and email:
-                manager = get_user_manager()
-                user_id = manager.create_user(username, email, UserRole.FREE)
-                st.success(f"✅ Welcome {username}! Account created.")
-                st.info(f"Your User ID: `{user_id}`")
-                st.session_state.user_id = user_id
-                time.sleep(2)
-                st.rerun()
+            if signup_username and signup_email and signup_password:
+                registry = get_user_registry()
+                success, result = registry.register_user(signup_username, signup_email, signup_password)
+                
+                if success:
+                    user_id = result
+                    # Also create user in manager
+                    manager = get_user_manager()
+                    manager.create_user(signup_username, signup_email, UserRole.FREE)
+                    
+                    st.success(f"✅ Welcome {signup_username}! Account created.")
+                    st.info(f"Your User ID: `{user_id}`")
+                    st.session_state.user_id = user_id
+                    time.sleep(1)
+                    st.rerun()
+                else:
+                    st.error(result)
             else:
                 st.error("Please fill in all fields")
     
@@ -124,21 +135,25 @@ def render_safe_blank_page():
             unsafe_allow_html=True
         )
         st.write("Already have an account? Welcome back!")
-        existing_user_id = st.text_input("Enter Your User ID", key="login_userid", placeholder="your_user_id_here")
+        login_username = st.text_input("Username", key="login_username", placeholder="your_username")
+        login_password = st.text_input("Password", key="login_password", placeholder="Enter your password", type="password")
         
         if st.button("🔓 Login Now", key="login_btn", use_container_width=True):
-            if existing_user_id:
-                manager = get_user_manager()
-                user = manager.get_user(existing_user_id)
-                if user:
+            if login_username and login_password:
+                registry = get_user_registry()
+                success, result = registry.login_user(login_username, login_password)
+                
+                if success:
+                    user_id = result
+                    user = registry.get_user(user_id)
                     st.success(f"✅ Welcome back {user['username']}!")
-                    st.session_state.user_id = existing_user_id
+                    st.session_state.user_id = user_id
                     time.sleep(1)
                     st.rerun()
                 else:
-                    st.error("❌ User ID not found")
+                    st.error(result)
             else:
-                st.error("❌ Please enter your User ID")
+                st.error("❌ Please enter username and password")
     
     st.divider()
     
