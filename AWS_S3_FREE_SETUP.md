@@ -18,13 +18,13 @@ This guide walks you through setting up free AWS S3 storage for persistent video
 - 20,000 GET requests
 - 2,000 PUT requests
 
-Perfect for development & testing!
+Perfect for development & testing!ttps://console.aws.amazon.com/s3
 
 ---
 
 ## 2. Create S3 Bucket
 
-1. Log into AWS Console: https://console.aws.amazon.com/s3
+1. Log into AWS Console: h
 2. Click **"Create bucket"**
 3. **Bucket name:** `blank-app-videos-{your-username}` (must be globally unique)
 4. **Region:** Select closest to you (e.g., `us-east-1`)
