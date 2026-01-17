@@ -40,6 +40,8 @@ def initialize_app():
         st.session_state.uploaded_videos = []
     if 'streams' not in st.session_state:
         st.session_state.streams = []
+    if 'stream_active' not in st.session_state:
+        st.session_state.stream_active = False
 
 
 # ============================================================================

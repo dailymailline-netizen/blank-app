@@ -106,22 +106,27 @@ def render_safe_blank_page():
         
         if st.button("🚀 Create Free Account", key="signup_btn", use_container_width=True):
             if signup_username and signup_email and signup_password:
-                registry = get_user_registry()
-                success, result = registry.register_user(signup_username, signup_email, signup_password)
-                
-                if success:
-                    user_id = result
-                    # Also create user in manager
-                    manager = get_user_manager()
-                    manager.create_user(signup_username, signup_email, UserRole.FREE)
+                try:
+                    registry = get_user_registry()
+                    success, result = registry.register_user(signup_username, signup_email, signup_password)
                     
-                    st.success(f"✅ Welcome {signup_username}! Account created.")
-                    st.info(f"Your User ID: `{user_id}`")
-                    st.session_state.user_id = user_id
-                    time.sleep(1)
-                    st.rerun()
-                else:
-                    st.error(result)
+                    if success:
+                        user_id = result
+                        # Also create user in manager
+                        manager = get_user_manager()
+                        manager.create_user(signup_username, signup_email, UserRole.FREE)
+                        
+                        st.session_state.user_id = user_id
+                        st.success(f"✅ Welcome {signup_username}! Account created.")
+                        st.balloons()
+                        # Wait briefly then rerun to redirect to dashboard
+                        import time
+                        time.sleep(1)
+                        st.rerun()
+                    else:
+                        st.error(result)
+                except Exception as e:
+                    st.error(f"❌ Error during registration: {str(e)}")
             else:
                 st.error("Please fill in all fields")
     
@@ -140,18 +145,24 @@ def render_safe_blank_page():
         
         if st.button("🔓 Login Now", key="login_btn", use_container_width=True):
             if login_username and login_password:
-                registry = get_user_registry()
-                success, result = registry.login_user(login_username, login_password)
-                
-                if success:
-                    user_id = result
-                    user = registry.get_user(user_id)
-                    st.success(f"✅ Welcome back {user['username']}!")
-                    st.session_state.user_id = user_id
-                    time.sleep(1)
-                    st.rerun()
-                else:
-                    st.error(result)
+                try:
+                    registry = get_user_registry()
+                    success, result = registry.login_user(login_username, login_password)
+                    
+                    if success:
+                        user_id = result
+                        user = registry.get_user(user_id)
+                        st.session_state.user_id = user_id
+                        st.success(f"✅ Welcome back {user['username']}!")
+                        st.balloons()
+                        # Wait briefly then rerun to redirect to dashboard
+                        import time
+                        time.sleep(1)
+                        st.rerun()
+                    else:
+                        st.error(result)
+                except Exception as e:
+                    st.error(f"❌ Error during login: {str(e)}")
             else:
                 st.error("❌ Please enter username and password")
     
