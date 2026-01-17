@@ -15,9 +15,20 @@ import streamlit as st
 class UserRegistry:
     """Persistent user registry with login credentials"""
     
-    def __init__(self, registry_path: Path = Path("data/users")):
-        self.registry_path = registry_path
-        self.registry_path.mkdir(parents=True, exist_ok=True)
+    def __init__(self, registry_path: Path = None):
+        if registry_path is None:
+            registry_path = Path("data/users")
+        
+        # Convert to Path object if string
+        if isinstance(registry_path, str):
+            registry_path = Path(registry_path)
+        
+        self.registry_path = registry_path.resolve()  # Use absolute path
+        try:
+            self.registry_path.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            raise RuntimeError(f"Failed to create registry directory: {e}")
+        
         self.registry_file = self.registry_path / "registry.json"
         self.users = self._load_registry()
     
@@ -26,20 +37,39 @@ class UserRegistry:
         if self.registry_file.exists():
             try:
                 with open(self.registry_file, "r") as f:
-                    return json.load(f)
+                    data = json.load(f)
+                    return data if isinstance(data, dict) else {}
+            except json.JSONDecodeError as e:
+                print(f"Warning: Registry file corrupted, starting fresh: {e}")
+                return {}
             except Exception as e:
-                print(f"Error loading registry: {e}")
+                print(f"Warning: Error loading registry: {e}")
                 return {}
         return {}
     
     def _save_registry(self) -> bool:
         """Save user registry to disk"""
         try:
+            # Create backup
+            backup_file = self.registry_path / "registry.json.bak"
+            if self.registry_file.exists():
+                import shutil
+                shutil.copy2(self.registry_file, backup_file)
+            
+            # Write new data
             with open(self.registry_file, "w") as f:
                 json.dump(self.users, f, indent=2)
             return True
         except Exception as e:
             print(f"Error saving registry: {e}")
+            # Try to restore backup
+            try:
+                backup_file = self.registry_path / "registry.json.bak"
+                if backup_file.exists():
+                    import shutil
+                    shutil.copy2(backup_file, self.registry_file)
+            except:
+                pass
             return False
     
     def _hash_password(self, password: str) -> str:
