@@ -22,8 +22,5 @@ enableXsrfProtection = true
 gatherUsageStats = false
 serverAddress = "localhost"
 
-[deprecation]
-showfileUploaderEncoding = false
-
 [runner]
 magicEnabled = true
