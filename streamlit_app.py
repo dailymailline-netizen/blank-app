@@ -20,6 +20,7 @@ from user_stats_ui import (
     demo_user_activity,
     get_user_manager
 )
+from user_registry import get_user_registry
 
 # ============================================================================
 # INITIALIZATION
@@ -64,8 +65,16 @@ def main():
 def show_main_app():
     """Show main app after user login"""
     user_id = st.session_state.user_id
-    manager = get_user_manager()
-    user = manager.get_user(user_id)
+    
+    # Get user from registry (single source of truth)
+    registry = get_user_registry()
+    user = registry.get_user(user_id)
+    
+    if not user:
+        st.error("❌ User not found. Please log in again.")
+        st.session_state.user_id = None
+        st.rerun()
+        return
     
     # Sidebar header
     st.sidebar.title("🎬 Stream & Upload Hub")
