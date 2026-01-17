@@ -116,7 +116,13 @@ def show_main_app():
 
 def page_dashboard(user_id: str, manager):
     """Dashboard homepage"""
-    st.title("📊 Dashboard")
+    # Enhanced title with HTML
+    st.markdown("""
+    <h1 style='text-align: center; font-size: 4em; margin: 30px 0; background: linear-gradient(to right, #FF6B6B, #FF8E72); 
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;'>
+    📊 Dashboard
+    </h1>
+    """, unsafe_allow_html=True)
     
     # Quick stats
     stats = manager.get_user_stats(user_id)
