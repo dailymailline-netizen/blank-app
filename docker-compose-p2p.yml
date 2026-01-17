@@ -1,0 +1,175 @@
+version: '3.8'
+
+services:
+  # Streamlit Instance 1
+  streamlit-1:
+    build: .
+    container_name: stream-hub-1
+    ports:
+      - "8501:8501"
+      - "6881:6881"
+    volumes:
+      - shared_videos:/app/uploads
+      - shared_notes:/app/community_notes
+      - shared_analytics:/app/analytics
+      - ./logs:/app/logs
+    environment:
+      - STORAGE_BACKEND=local
+      - P2P_ENABLED=true
+      - P2P_NODE_NAME=stream-hub-1
+      - P2P_PORT=6881
+      - NOTEPAD_STORAGE_PATH=/app/community_notes
+      - NOTEPAD_AUTO_SYNC=true
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_SERVER_PORT=8501
+    networks:
+      - stream-hub-network
+    depends_on:
+      - nfs-server
+    restart: unless-stopped
+
+  # Streamlit Instance 2
+  streamlit-2:
+    build: .
+    container_name: stream-hub-2
+    ports:
+      - "8502:8501"
+      - "6882:6881"
+    volumes:
+      - shared_videos:/app/uploads
+      - shared_notes:/app/community_notes
+      - shared_analytics:/app/analytics
+      - ./logs:/app/logs
+    environment:
+      - STORAGE_BACKEND=local
+      - P2P_ENABLED=true
+      - P2P_NODE_NAME=stream-hub-2
+      - P2P_PORT=6881
+      - NOTEPAD_STORAGE_PATH=/app/community_notes
+      - NOTEPAD_AUTO_SYNC=true
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_SERVER_PORT=8501
+    networks:
+      - stream-hub-network
+    depends_on:
+      - nfs-server
+    restart: unless-stopped
+
+  # Streamlit Instance 3
+  streamlit-3:
+    build: .
+    container_name: stream-hub-3
+    ports:
+      - "8503:8501"
+      - "6883:6881"
+    volumes:
+      - shared_videos:/app/uploads
+      - shared_notes:/app/community_notes
+      - shared_analytics:/app/analytics
+      - ./logs:/app/logs
+    environment:
+      - STORAGE_BACKEND=local
+      - P2P_ENABLED=true
+      - P2P_NODE_NAME=stream-hub-3
+      - P2P_PORT=6881
+      - NOTEPAD_STORAGE_PATH=/app/community_notes
+      - NOTEPAD_AUTO_SYNC=true
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_SERVER_PORT=8501
+    networks:
+      - stream-hub-network
+    depends_on:
+      - nfs-server
+    restart: unless-stopped
+
+  # NFS Server (shared storage)
+  nfs-server:
+    image: itsthenetwork/nfs-server:latest
+    container_name: stream-hub-nfs
+    ports:
+      - "111:111/tcp"
+      - "111:111/udp"
+      - "2049:2049/tcp"
+      - "2049:2049/udp"
+      - "20048:20048/tcp"
+      - "20048:20048/udp"
+    volumes:
+      - shared_videos:/data/videos
+      - shared_notes:/data/notes
+      - shared_analytics:/data/analytics
+    environment:
+      - SHARED_DIRECTORY=/data
+    networks:
+      - stream-hub-network
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor=unconfined
+    restart: unless-stopped
+
+  # Nginx Load Balancer / Reverse Proxy
+  nginx:
+    image: nginx:latest
+    container_name: stream-hub-lb
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      - stream-hub-network
+    depends_on:
+      - streamlit-1
+      - streamlit-2
+      - streamlit-3
+    restart: unless-stopped
+
+  # Optional: Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: stream-hub-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - stream-hub-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    restart: unless-stopped
+
+volumes:
+  shared_videos:
+    driver: local
+  shared_notes:
+    driver: local
+  shared_analytics:
+    driver: local
+  prometheus_data:
+    driver: local
+
+networks:
+  stream-hub-network:
+    driver: bridge
+
+# Usage:
+# docker-compose -f docker-compose-p2p.yml up -d
+# 
+# Access:
+# - Streamlit 1: http://localhost:8501
+# - Streamlit 2: http://localhost:8502
+# - Streamlit 3: http://localhost:8503
+# - Load Balancer (Nginx): http://localhost:80
+# - Prometheus: http://localhost:9090
+#
+# Logs:
+# docker-compose -f docker-compose-p2p.yml logs -f streamlit-1
+#
+# Stop all:
+# docker-compose -f docker-compose-p2p.yml down
+#
+# Stop and remove volumes:
+# docker-compose -f docker-compose-p2p.yml down -v
