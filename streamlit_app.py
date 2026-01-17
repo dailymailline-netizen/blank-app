@@ -245,45 +245,136 @@ def page_upload_video(user_id: str, manager):
 # ============================================================================
 
 def page_live_stream(user_id: str, manager):
-    """Live stream page"""
+    """Live stream page with camera access"""
     st.title("🔴 Live Stream")
     
     user = manager.get_user(user_id)
-    
     st.write(f"**Streaming as:** {user['username']}")
     
-    col1, col2 = st.columns(2)
+    # Create tabs for setup and preview
+    tab1, tab2, tab3 = st.tabs(["📹 Camera Feed", "⚙️ Stream Settings", "📊 Stream Info"])
     
-    with col1:
-        stream_name = st.text_input("Stream Name")
-        resolution = st.selectbox("Resolution", config.SUPPORTED_RESOLUTIONS)
-    
-    with col2:
-        stream_desc = st.text_area("Description")
-        bitrate = st.selectbox("Bitrate", config.SUPPORTED_BITRATES)
-    
-    if st.button("🟢 Start Stream"):
-        if stream_name:
-            # Record stream creation
-            manager.record_upload(user_id, "stream")
+    # TAB 1: CAMERA FEED
+    with tab1:
+        st.markdown("### 📹 Camera Preview")
+        
+        # Camera access
+        camera_col, preview_col = st.columns([1, 1])
+        
+        with camera_col:
+            st.markdown("**Capture from Webcam:**")
+            picture = st.camera_input("Take a picture")
             
-            # Add to streams
-            stream_info = {
-                "id": f"stream_{len(st.session_state.streams)}",
-                "name": stream_name,
-                "description": stream_desc,
-                "resolution": resolution,
-                "bitrate": bitrate,
-                "started_at": datetime.now().isoformat(),
-                "status": "active",
-                "created_by": user_id
-            }
-            st.session_state.streams.append(stream_info)
+            if picture:
+                st.success("✅ Camera frame captured!")
+                st.image(picture, caption="Live Camera Feed")
+        
+        with preview_col:
+            st.markdown("**Stream Status:**")
+            if "stream_active" not in st.session_state:
+                st.session_state.stream_active = False
             
-            st.success("✅ Stream started!")
-            st.info("Your stream creation has been recorded in your statistics.")
+            stream_status = "🟢 LIVE" if st.session_state.stream_active else "⚫ OFFLINE"
+            st.metric("Status", stream_status)
+            
+            if st.session_state.stream_active:
+                st.info("📡 Broadcasting to audience...")
+            else:
+                st.warning("📡 Stream not active. Configure and start below.")
+    
+    # TAB 2: STREAM SETTINGS
+    with tab2:
+        st.markdown("### ⚙️ Stream Configuration")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            stream_name = st.text_input("Stream Name", placeholder="My Awesome Stream")
+            resolution = st.selectbox("Resolution", config.SUPPORTED_RESOLUTIONS)
+            st.caption("Camera output quality")
+        
+        with col2:
+            stream_desc = st.text_area("Description", placeholder="Describe your stream...")
+            bitrate = st.selectbox("Bitrate", config.SUPPORTED_BITRATES)
+            st.caption("Video bitrate for streaming")
+        
+        st.divider()
+        
+        # Stream controls
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            if st.button("🟢 Start Stream", use_container_width=True, key="start_stream"):
+                if stream_name:
+                    # Record stream creation
+                    manager.record_upload(user_id, "stream")
+                    
+                    # Add to streams
+                    stream_info = {
+                        "id": f"stream_{len(st.session_state.streams)}",
+                        "name": stream_name,
+                        "description": stream_desc,
+                        "resolution": resolution,
+                        "bitrate": bitrate,
+                        "started_at": datetime.now().isoformat(),
+                        "status": "active",
+                        "created_by": user_id
+                    }
+                    st.session_state.streams.append(stream_info)
+                    st.session_state.stream_active = True
+                    
+                    st.success("✅ Stream started!")
+                    st.balloons()
+                    st.rerun()
+                else:
+                    st.error("Please enter a stream name")
+        
+        with col2:
+            if st.button("⏸️ Pause Stream", use_container_width=True, key="pause_stream"):
+                if st.session_state.stream_active:
+                    st.session_state.stream_active = False
+                    st.info("⏸️ Stream paused")
+                    st.rerun()
+        
+        with col3:
+            if st.button("⏹️ End Stream", use_container_width=True, key="stop_stream"):
+                if st.session_state.stream_active:
+                    st.session_state.stream_active = False
+                    st.info("✅ Stream ended")
+                    st.rerun()
+    
+    # TAB 3: STREAM INFO
+    with tab3:
+        st.markdown("### 📊 Stream Statistics")
+        
+        if st.session_state.streams:
+            latest_stream = st.session_state.streams[-1]
+            
+            metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+            
+            with metric_col1:
+                st.metric("Stream Name", latest_stream.get("name", "N/A"))
+            
+            with metric_col2:
+                st.metric("Resolution", latest_stream.get("resolution", "N/A"))
+            
+            with metric_col3:
+                st.metric("Bitrate", latest_stream.get("bitrate", "N/A"))
+            
+            with metric_col4:
+                st.metric("Status", latest_stream.get("status", "N/A").upper())
+            
+            st.divider()
+            
+            # Description
+            st.markdown("**Stream Description:**")
+            st.write(latest_stream.get("description", "No description provided"))
+            
+            st.markdown("**Stream ID:**")
+            st.code(latest_stream.get("id", "N/A"))
         else:
-            st.error("Please enter a stream name")
+            st.info("No active streams yet. Create one in the Stream Settings tab!")
+
 
 
 # ============================================================================
